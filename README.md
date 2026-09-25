@@ -279,7 +279,7 @@ Python, FastAPI, PostgreSQL, Faiss, Fastembed, Gemini/Ollama, Pytest, Docker
 ### Get Started
 1. Clone Repo
 ```python
-https://github.com/anamulislamshamim/pipeline-rag.git
+git clone https://github.com/anamulislamshamim/pipeline-rag.git
 ```
 2. Change Directory
 ```python
