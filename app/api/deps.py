@@ -8,7 +8,10 @@ separate DI framework, which would be over-engineering for this scope.
 from __future__ import annotations
 
 import os
+from collections.abc import Iterator
 from functools import lru_cache
+
+from sqlalchemy.orm import Session
 
 from app.adapters.faiss_store import FaissVectorStore
 from app.adapters.fastembed_embedder import FastEmbedEmbedder
@@ -30,6 +33,22 @@ from app.services.rag.validator import AnswerValidator
 def get_repository() -> PaperRepository:
     settings = get_settings()
     return SqlPaperRepository(make_session_factory(settings))
+
+
+@lru_cache
+def _get_session_factory():
+    return make_session_factory(get_settings())
+
+
+def get_db_session() -> Iterator[Session]:
+    """Raw SQLAlchemy Session, for read-only reporting queries (stats
+    aggregations) that don't fit the PaperRepository's domain-entity shape.
+    Closed after each request regardless of success/failure."""
+    session = _get_session_factory()()
+    try:
+        yield session
+    finally:
+        session.close()
 
 
 @lru_cache
