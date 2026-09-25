@@ -1,3 +1,4 @@
+# --- Day 1: ingestion, storage, CLI ---
 pydantic==2.9.2
 pydantic-settings==2.5.2
 SQLAlchemy==2.0.35
@@ -10,3 +11,15 @@ typer==0.16.1
 # --- Dev / tests ---
 pytest==8.3.3
 pytest-cov==5.0.0
+
+# --- Day 2: RAG API (embeddings, vector search, reranking, LLM, web API) ---
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+fastembed==0.8.1
+faiss-cpu==1.8.0.post1
+numpy==1.26.4
+# No dedicated SDK for Ollama/Gemini - both adapters use httpx (already
+# above) directly, which keeps LLM-provider swapping to config only.
+
+# --- Day 3 (Gradio UI) - uncomment when we get there ---
+# gradio==4.44.0

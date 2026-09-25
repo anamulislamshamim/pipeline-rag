@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from typing import Iterable, Protocol
 from datetime import datetime
 
-from app.domain.models import PaperRecord
+from app.domain.models import PaperRecord, RetrievedChunk
 
 
 class PaperSource(Protocol):
@@ -34,7 +34,7 @@ class PaperRepository(Protocol):
         """
         ...
 
-    def marked_embedded(self, paper_id: int, content_hash: str, model: str) -> None:
+    def mark_embedded(self, paper_id: int, content_hash: str, model: str) -> None:
         ...
 
     def get_papers_by_ids(self, paper_ids: list[int]) -> dict[int, "PaperView"]:
@@ -79,6 +79,17 @@ class LLMClient(Protocol):
     def complete_json(self, system: str, user: str) -> str:
         """Return the raw text of the model's response 
         (expected to be JSON)"""
+        ...
+
+
+class Reranker(Protocol):
+    """Cross-encoder reranking: scores (query, candidate) pairs directly,
+    more accurate than embedding-similarity alone but too slow to run over
+    the whole corpus - hence applied only to the small candidate set the
+    vector store already returned."""
+
+    def rerank(self, query: str, candidates: list[RetrievedChunk]) -> list[tuple[RetrievedChunk, float]]:
+        """Return (chunk, score) pairs sorted best-first."""
         ...
 
 

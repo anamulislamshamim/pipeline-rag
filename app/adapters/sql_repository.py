@@ -180,9 +180,8 @@ class SqlPaperRepository:
                     .all()
                 )
                 result[p.id] = PaperView(
-                    id=p.id, arxiv_id=p.arxiv_id, title=p.title,
-                    authors=list(authors), url=p.url,
-                    published_at=p.published_at,
+                    id=p.id, arxiv_id=p.arxiv_id, title=p.title, abstract=p.abstract,
+                    authors=list(authors), url=p.url, published_at=p.published_at,
                 )
             return result
 

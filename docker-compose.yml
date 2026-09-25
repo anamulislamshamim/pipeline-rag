@@ -26,6 +26,11 @@ services:
       - "8000:8000"
     volumes:
       - ./data:/app/data
+    extra_hosts:
+      # Lets the container reach Ollama running on the host. Docker Desktop
+      # (Mac/Windows) already resolves this automatically; this entry makes
+      # it also work on native Linux Docker.
+      - "host.docker.internal:host-gateway"
 
 volumes:
   pgdata:

@@ -1,7 +1,7 @@
 """Centralized application settings.
 
 Single source of truth for configuration. Every adapter/service receives
-value from here via dependency injection rather than reding os.environ
+values from here via dependency injection rather than reading os.environ
 directly, which keeps them testable in isolation.
 """
 from __future__ import annotations
@@ -14,35 +14,41 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    # Database
-    database_url: str = "postgresql+psycopg://pipeline:pipeline@db:5432/pipeline"
+    # --- Database ---
+    database_url: str = "postgresql+psycopg://pipeline:pipeline@localhost:5432/pipeline"
 
-    # arXiv ingestion
+    # --- arXiv ingestion ---
     arxiv_categories: str = "cs.AI,cs.CL,cs.LG"
     arxiv_max_papers: int = 3000
     arxiv_page_size: int = 100
     arxiv_min_request_interval_seconds: float = 3.0
     arxiv_base_url: str = "https://export.arxiv.org/api/query"
 
-    # Embedding / Vector store
+    # --- Embeddings / vector store ---
     embed_model: str = "BAAI/bge-small-en-v1.5"
     embed_dim: int = 384
     faiss_dir: str = "./data"
     faiss_index_name: str = "papers.index"
 
-    # LLM
-    llm_provider: str = "anthropic"
-    llm_api_key: str = ""
-    llm_model: str = "claude-sonnet-4-6"
+    # --- Reranking ---
+    rerank_enabled: bool = True
+    rerank_model: str = "Xenova/ms-marco-MiniLM-L-6-v2"
 
-    # RAG retrieval knobs
+    # --- LLM ---
+    llm_provider: str = "ollama"  # "ollama" | "gemini" - see app/adapters/llm_factory.py
+    ollama_base_url: str = "http://host.docker.internal:11434"
+    ollama_model: str = "qwen:4b"
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.5-flash"
+
+    # --- RAG retrieval knobs ---
     retrieval_top_k: int = 20
     retrieval_top_n: int = 5
     retrieval_min_score: float = 0.35
     rag_max_context_tokens: int = 3000
-    rerank_enabled: bool = False
+    rag_max_attempts: int = 2
 
-    # App
+    # --- App ---
     log_level: str = "INFO"
 
     @property
@@ -52,5 +58,5 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    """Cached settings singleton."""
+    """Cached settings singleton. Use Settings() directly in tests to bypass the cache."""
     return Settings()
