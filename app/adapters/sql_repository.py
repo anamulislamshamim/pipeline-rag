@@ -84,7 +84,7 @@ class SqlPaperRepository:
 
                 else:
                     unchanged += 1
-
+        
             session.commit()
 
         logger.info(
@@ -127,14 +127,47 @@ class SqlPaperRepository:
         category_ids: Iterable[int],
         author_ids: Sequence[int],
     ) -> None:
-        session.execute(delete(PaperCategory).where(PaperCategory.paper_id == paper_id))
-        session.execute(delete(PaperAuthor).where(PaperAuthor.paper_id == paper_id))
 
+        # Delete existing relationships ONCE
+        session.execute(
+            delete(PaperCategory).where(
+                PaperCategory.paper_id == paper_id
+            )
+        )
+
+        session.execute(
+            delete(PaperAuthor).where(
+                PaperAuthor.paper_id == paper_id
+            )
+        )
+
+        # Add categories
         for cid in category_ids:
-            session.add(PaperCategory(paper_id=paper_id, category_id=cid))
+            session.add(
+                PaperCategory(
+                    paper_id=paper_id,
+                    category_id=cid,
+                )
+            )
+
+        # Remove duplicate author relationships
+        seen_links = set()
 
         for position, aid in enumerate(author_ids):
-            session.add(PaperAuthor(paper_id=paper_id, author_id=aid, position=position))
+            key = (paper_id, aid)
+
+            if key in seen_links:
+                continue
+
+            seen_links.add(key)
+
+            session.add(
+                PaperAuthor(
+                    paper_id=paper_id,
+                    author_id=aid,
+                    position=position,
+                )
+            )
 
     # Embedding Tracking (Used by IndexingService)
     def get_papers_needing_embedding(self, model: str) -> list[tuple[int, str, str]]:
