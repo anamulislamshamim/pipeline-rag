@@ -368,6 +368,48 @@ Example Visualizaiton API:
 
 ![Visualization API](./images/stats.png)
 
+### Known Limitation
+
+#### Aggregate and Exact-Count Questions
+
+The current RAG pipeline is designed primarily for **semantic question answering**, where relevant papers are retrieved from FAISS and supplied as context to the LLM.
+
+It is not well suited for questions such as:
+
+* "How many papers mention transformers?"
+* "How many papers were published in 2025?"
+* "How many papers discuss RAG?"
+
+These are fundamentally **search and aggregation** problems rather than semantic answer-generation problems. Relying on the top-K retrieved documents could produce incomplete or inaccurate counts.
+
+### Future Improvement
+
+With more development time, the system could introduce a **query router** that classifies incoming questions and directs them to the appropriate service:
+
+```text
+                         User Query
+                             │
+                             ▼
+                       Query Router
+                      /             \
+                     /               \
+            Semantic Question     Search / Aggregate
+                   │                    │
+                   ▼                    ▼
+              Vector RAG          Elasticsearch
+                   │                    │
+                   ▼                    ├── Full-text search
+                  LLM                   └── Keyword filtering
+                                        │
+                                        ▼
+                                  Stats Service
+                                        │
+                                        ▼
+                                  Exact counts
+```
+
+**Elasticsearch** could complement FAISS by providing lexical/full-text search over paper titles, abstracts, and metadata. The existing **Stats Service** could then perform exact database aggregations, while the RAG pipeline remains responsible for semantic question answering.
+
 ## Thank You
 
 Thank you for taking the time to explore **Pipeline RAG**.
