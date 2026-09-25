@@ -277,17 +277,44 @@ pipeline-rag/
 Python, FastAPI, PostgreSQL, Faiss, Fastembed, Gemini/Ollama, Pytest, Docker
 
 ### Get Started
+1. Clone Repo
 ```python
-1. Git clone: https://github.com/anamulislamshamim/pipeline-rag.git
-2. cd /pipeline-rag
-3. Rename .env.example to .env
-4. Add GEMINI_API_KEY=AQ.Ab8RN6LY5_fpvHiaxf241GVSkUN8x_example
-5. docker compose up --build -d db
-6. docker compose build --no-cache api
-7. docker compose run --rm api alembic upgrade head
-8. docker compose run --rm api python -m app.cli ingest --categories cs.AI,cs.CL,cs.LG --max-papers 3000
-9. docker compose exec db psql -U pipeline -d pipeline -c "SELECT count(*) FROM papers;"
-10. docker compose exec db psql -U pipeline -d pipeline -c "SELECT arxiv_id, title, primary_category_id FROM papers LIMIT 5;"
+https://github.com/anamulislamshamim/pipeline-rag.git
+```
+2. Change Directory
+```python
+cd /pipeline-rag
+```
+3. Add .env
+Rename .env.example to .env
+
+4. Add GEMINI API key
+```python
+GEMINI_API_KEY=AQ.Ab8RN6LY5_fpvHiaxf241GVSkUN8x_example
+```
+5. Start DB service
+```python
+docker compose up --build -d db
+```
+6. Build the project
+```python
+docker compose build --no-cache api
+```
+7. Migrate DB
+```python
+docker compose run --rm api alembic upgrade head
+```
+8. Start Data Ingestion
+```python
+docker compose run --rm api python -m app.cli ingest --categories cs.AI,cs.CL,cs.LG --max-papers 3000
+```
+9. Check Data
+```python
+docker compose exec db psql -U pipeline -d pipeline -c "SELECT count(*) FROM papers;"
+```
+10. View Some Data
+```python
+docker compose exec db psql -U pipeline -d pipeline -c "SELECT arxiv_id, title, primary_category_id FROM papers LIMIT 5;"
 ```
 ### Run Tests
 ```python
@@ -313,8 +340,14 @@ curl -s -X POST http://localhost:8000/ask -H "Content-Type: application/json" -d
 ##### Visualization APIs
 ```python
 docker compose up -d api
+```
+```python
 curl -s "http://localhost:8000/stats" | python3 -m json.tool
+```
+```python
 curl -s "http://localhost:8000/stats/top-categories?limit=5" | python3 -m json.tool
+```
+```python
 curl -s "http://localhost:8000/stats/papers-by-category-over-time?granularity=month&top=3" | python3 -m json.tool
 ```
 Example RAG:
